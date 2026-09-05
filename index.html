@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>ระบบสั่งอาหาร</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      max-width: 900px;
+      margin: auto;
+      background: #fffefb;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    h2 {
+      margin-top: 30px;
+      border-bottom: 2px solid #eee;
+      padding-bottom: 5px;
+    }
+
+
+    .item-card {
+      display: inline-block;
+      width: 160px;
+      margin: 10px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      overflow: hidden;
+      text-align: center;
+      background: #fff;
+      box-shadow: 2px 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .item-card img {
+      width: 100%;
+      height: 100px;
+      object-fit: cover;
+    }
+
+    .item-info {
+      padding: 10px;
+    }
+
+    .item-info p {
+      margin: 5px 0;
+    }
+
+    .item-btn {
+      background: #f57c00;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+
+    .item-btn:hover {
+      background: #e65100;
+    }
+
+    #order-summary {
+      margin-top: 30px;
+      background: #f9f9f9;
+      padding: 20px;
+      border-radius: 10px;
+    }
+
+    #order-summary ul {
+      padding-left: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🍽 ระบบสั่งอาหาร</h1>
+  <div id="menu"></div>
+  <div id="order-summary">
+    <h2>🧾 รายการที่สั่ง</h2>
+    <ul id="order-list"></ul>
+    <p><strong>รวมทั้งหมด: <span id="total">0</span> บาท</strong></p>
+    
+    <input type="text" id="customer-name" placeholder="ระบุเบอร์โต๊ะ หรือ ชื่อลูกค้า" style="width: 95%; padding: 10px; margin-top: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box;">
+    <button id="submit-btn" onclick="submitOrder()" style="width: 100%; padding: 12px; margin-top: 15px; background: #28a745; color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer;">ยืนยันการสั่งอาหาร</button>
+  </div>
+
+  <script>
+    const menu = {
+      '🥘 กับข้าว/ข้าวจานเดียว': [
+        { name: 'กระเพราหมูสับ/หมูชิ้น', price: 60, img: 'https://static.thairath.co.th/media/dFQROr7oWzulq5Fa5KwGLS70zEy4zJYkKxH4zR40aU0INmXH5VZCgNc0pxyrOe1F6YI.jpg' },
+        { name: 'ข้าวผัดหมู', price: 60, img: 'https://s359.kapook.com/pagebuilder/d0b8a629-aded-4ff0-b623-6511bc54fb52.jpg' },
+        { name: 'ข้าวผัดไข่', price: 60, img: 'https://img.wongnai.com/p/1920x0/2019/12/19/d5537700a7274ac09964b6a51dd0a9f6.jpg'},
+        { name: 'ข้าวผัดทะเล', price: 80, img: 'https://img.wongnai.com/p/1920x0/2020/03/06/d34e8f779cd94f18ac43aeab11a5239f.jpg'},
+        { name: 'ข้าวไข่เจียวธรรมดา', price: 50, img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQdG2YmC-_IZzB8poSFrVjCTKlYVwch2Q9Pk3-dypt-3jns24xWpRGu1KL_&s=10' },
+        { name: 'กระเพราเนื้อ', price: 70, img: 'https://api2.krua.co/wp-content/uploads/2023/12/RT1811_Gallery_-02.jpg' },
+        { name: 'กระเพราทะเล', price: 80, img: 'https://s359.kapook.com/pagebuilder/77e69f79-d857-4153-9052-b8a20d7259d8.jpg'},
+        { name: 'ผัดพริกแกงหมู', price: 60, img: 'https://img-global.cpcdn.com/recipes/0020cc45253135f4/240x320cq80/photo.jpg' },
+        { name: 'ผัดพริกแกงทะเล', price: 80, img: 'https://i.ytimg.com/vi/-PpReCsFVu0/maxresdefault.jpg'},
+        { name: 'หมูกระเทียม', price: 60, img: 'https://media.lul.la/wp-content/uploads/2022/11/15164454/rice-with-garlic-and-pepper-pork-featured-1155x629.jpg'},
+        { name: 'กุ้งกระเทียม', price: 80, img: 'https://storage.ftiebusiness.com/c1/Product_47949_264225760_fullsize.jpg'},
+        { name: 'หมึกกระเทียม', price: 80, img: 'https://i.ytimg.com/vi/KcSP6c8osnY/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLAuthhrUtLDonaenBidn8osvHis3w'},
+        { name: 'ข้าวไข่เจียวหมูสับ', price: 60, img: 'https://img.kapook.com/u/2016/wanwanat/0_edit/385698979x.jpg'},
+        { name: 'ต้มแซ่บกระดูกอ่อน', price: 130, img: 'https://www.unileverfoodsolutions.co.th/dam/global-ufs/mcos/SEA/calcmenu/recipes/TH-recipes/soups/%E0%B8%95%E0%B9%89%E0%B8%A1%E0%B9%81%E0%B8%8B%E0%B9%88%E0%B8%9A%E0%B8%81%E0%B8%A3%E0%B8%B0%E0%B8%94%E0%B8%B9%E0%B8%81%E0%B8%AB%E0%B8%A1%E0%B8%B9/%E0%B8%95%E0%B9%89%E0%B8%A1%E0%B9%81%E0%B8%8B%E0%B9%88%E0%B8%9A%E0%B8%81%E0%B8%A3%E0%B8%B0%E0%B8%94%E0%B8%B9%E0%B8%81%E0%B8%AB%E0%B8%A1%E0%B8%B9_header.jpg'},
+        { name: 'ต้มยำทะเล', price: 200, img: 'https://i.ytimg.com/vi/gjm1toMrY8g/maxresdefault.jpg'},
+        { name: 'ลาบหมู', price: 100, img: 'https://api2.krua.co/wp-content/uploads/2020/06/SEOForm_RT0168_1200x630.jpg'},
+      ],
+      '🥗 ส้มตำ': [
+        { name: 'ตำไทย', price: 70, img: 'https://www.unileverfoodsolutions.co.th/th/chef-inspiration/simple-tips-for-great-flavour/somtum-green-papaya-salad-recipes/jcr:content/parsys/content-aside-footer/tipsandadvice/image.img.jpg/1695118621402.jpg' },
+        { name: 'ตำปูปลาร้า', price: 60, img: 'https://img.wongnai.com/p/1968x0/2019/12/13/34d9ef3dbd8247c7bb8392902fe2869f.jpg' },
+        { name: 'ตำหอยดอง', price: 70, img: 'https://i.ytimg.com/vi/S35bKTIjG_I/maxresdefault.jpg'},
+        { name: 'ตำซั่ว', price: 80, img: 'https://www.1376delivery.com/productimages/3396_.jpg'},
+        { name: 'ตำแตง', price: 70, img: 'https://img.wongnai.com/p/1920x0/2019/01/18/e664a5c04f2f4886b6c7b35b67c2693e.jpg'},
+        { name: 'ตำป่า', price: 80, img: 'https://www.lemon8-app.com/seo/image?item_id=7521375815989789202&index=0&sign=7cf0ab21505735c0382e24aa0d84198d'},
+        { name: 'ตำไทยไข่เค็ม', price: 80, img: 'https://siriranya.wordpress.com/wp-content/uploads/2016/08/4083707.jpg'},
+        { name: 'ตำข้าวโพด', price: 80, img: 'https://www.sgethai.com/wp-content/uploads/2023/05/AnyConv.com__88-2.webp'},
+        { name: 'ตำข้าวโพดไข่เค็ม', price: 90, img: 'https://www.sgethai.com/wp-content/uploads/2023/05/AnyConv.com__5-99.webp'}  
+      ],
+      '🥣 ยำ': [
+        { name: 'ยำวุ้นเส้นทะเล', price: 100, img: 'https://s.isanook.com/wo/0/ud/48/242681/y.jpg?ip/crop/w670h402/q80/jpg' },
+        { name: 'ยำวุ้นเส้นหมูสับ', price: 80, img: 'https://pbs.twimg.com/media/E11mVtRVIAMgOcB?format=jpg&name=large'},
+        { name: 'ยำรวมทะเล', price: 100, img: 'https://longdan.co.uk/cdn/shop/articles/spicy-mixed-seafood-salad-with-thai-food-ingredients_1200x.jpg?v=1700554699'},
+        { name: 'ยำมาม่าหมูสับ', price: 80, img: 'https://i.ytimg.com/vi/suBZbLNz4u0/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLCaJJfpAQlEzXYye0j4mCedn5G40w'},
+        { name: 'ยำมาม่าทะเล', price: 100, img: 'https://s359.kapook.com/pagebuilder/dd8fa42d-01a2-48c1-b146-a0770bf7d499.jpg'},
+      ],
+      '🥣 หมุกระทะ': [
+        { name: 'หมูกระทะชุดเล็ก', price: 400, img: 'https://images.hungryhub.com/uploads/restaurants/5192/photos/150801/RackMultipart20241121-136-14uqttq.jpg' },
+        { name: 'หมูกระทะชุดใหญ่', price: 600, img: 'https://images.hungryhub.com/uploads/restaurants/5192/photos/150801/RackMultipart20241121-136-14uqttq.jpg'},
+      ],
+      '🥣 อาหารทะเล': [
+        { name: 'กุ้ง10ตัว1กิโล', price: 750, img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcThYHbtpFBV2nMCP6wMHgqxEMagYxdE42l7FL4JAEKXYV03hjEN2usOXKE_&s=10' },
+        { name: 'กุ้ง13ตัว1กิโล', price: 700, img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcThYHbtpFBV2nMCP6wMHgqxEMagYxdE42l7FL4JAEKXYV03hjEN2usOXKE_&s=10'},
+        { name: 'กุ้ง20ตัว1กิโล', price: 600, img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcThYHbtpFBV2nMCP6wMHgqxEMagYxdE42l7FL4JAEKXYV03hjEN2usOXKE_&s=10' },
+        { name: 'หมึกกระดอง1กิโล', price: 470, img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR-nTsQJRgkINEg2_hGDlDNEJxQ7kHb4_4xiXeTJEFBKG0hwCZc68_ULYQ&s=10'},
+        { name: 'หมึกกล้วย1กิโล', price: 450, img: 'https://s359.kapook.com/pagebuilder/7736cd31-1e93-4765-aeae-3bf14a554ab8.jpg' },
+        { name: 'หอยแครง1กิโล', price: 330, img: 'https://cms.dmpcdn.com/food/2020/06/10/447a8440-aaf9-11ea-98cf-d73f459a22ef_original.jpg'},
+        { name: 'เมี่ยงปลากะพง', price: 430, img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTpQJXYfNOBQwU4sGMbC86uOJM3su6L7Zg3rYv4Gwk2han4XdDi0b0EdPk&s=10' },
+        { name: 'เมี่ยงกุ้ง', price: 400, img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT1hGAMhHuZF2isNHrmihBAn7R0yAdYzjd7x5knDKlrf7A2OhcdsG3JFTvv&s=10'},
+        { name: 'กุ้งดอง', price: 170, img: 'https://www.ananda.co.th/blog/thegenc/wp-content/uploads/2023/01/cover-2.jpg'},
+        { name: 'แซลม่อนดอง', price: 270, img: 'https://s.isanook.com/wo/0/ud/35/177545/s.jpg'},
+        { name: 'แมงกะพรุนดอง', price: 170, img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRkugEdE_2u4ZLTRRq_z08sn1lY9aoJJBmNyK8G3PZv0I7S1KN891NxwWQH&s=10'},
+      ],
+      '🥣 ขนม': [
+        { name: 'เลย์เมี่ยงคำ', price: 35, img: 'https://obs-ect.line-scdn.net/r/ect/ect/image_165115257124020479619d02611t0fa6bdab/s860p' },
+        { name: 'เลย์สาหร่าย', price: 20, img: 'https://th-live-01.slatic.net/p/955af5aae2efc41ccbead9404eb0b0e4.jpg'},
+        { name: 'เลย์ธรรมดา', price: 30, img: 'https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcT-Qd2qouEXnrSHs9ioUADhRsC8oJOK22f1GMfAZrl-Y5dmTSzzT5lO2Z1yYSdRz7R_qOvXL1jPXF5P0favzRGTlhFXGEwFmvOXmBYIBlO3bzPt8Ny8UR7fOPraGH-mu34gRFkM2mU4&usqp=CAc' },
+        { name: 'หมึกกรุบsunsu', price: 40, img: 'https://st.bigc-cs.com/cdn-cgi/image/format=webp,quality=90/public/media/catalog/product/50/88/8859745200150/thumbnail/8859745200150_1-20260522155822-.jpg'},
+      ],
+      '🥣 น้ำแข็งและเครื่องดื่ม': [
+        { name: 'น้ำแข็ง(ใหญ่)', price: 60, img: 'https://bluemochateas.com/wp-content/uploads/2021/04/%E0%B8%99%E0%B9%89%E0%B8%B3%E0%B9%81%E0%B8%82%E0%B9%87%E0%B8%87%E0%B8%AA%E0%B8%B5%E0%B9%88%E0%B9%80%E0%B8%AB%E0%B8%A5%E0%B8%B5%E0%B9%88%E0%B8%A2%E0%B8%A1.jpeg.webp' },
+        { name: 'น้ำแข็ง(เล็ก)', price: 40, img: 'https://bluemochateas.com/wp-content/uploads/2021/04/%E0%B8%99%E0%B9%89%E0%B8%B3%E0%B9%81%E0%B8%82%E0%B9%87%E0%B8%87%E0%B8%AA%E0%B8%B5%E0%B9%88%E0%B9%80%E0%B8%AB%E0%B8%A5%E0%B8%B5%E0%B9%88%E0%B8%A2%E0%B8%A1.jpeg.webp' },
+        { name: 'น้ำอัดลมโค้ก(ขวด)', price: 50, img: 'https://obs-ect.line-scdn.net/r/ect/ect/cj0tM2ZxMnI3ZDBiMXJxZSZzPWpwNiZ0PW0mdT0xZnZidWc5azQ0cGcwJmk9MA'},
+        { name: 'น้ำ(ขวดใหญ่)', price: 20, img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR4IH4NVdonVPnCDoyPIrkibGHovxPQnT-AJ9wWtlRn4VWaIfgAFZHiBD8h&s=10'},
+        { name: 'เบียร์ขวด(ช้าง)', price: 100, img: 'https://www.raanthai.co.uk/cdn/shop/files/dri102lg.jpg?v=1721493528&width=299'},
+        { name: 'เบียร์ขวด(สิงค์)', price: 90, img: 'https://fit-d.com/image_webp/f?src=./uploads/food/a2885964f0402d0b93fceacb80bc2d7c.png'},
+        { name: 'เบียร์ขวด(ลีโอ)', price: 90, img: 'https://newyorkpizza.online/live/wp-content/uploads/2020/06/Leo-Beer.jpg'},
+        { name: 'โซดา(ขวด)', price: 15, img: 'https://res.cloudinary.com/freshketimage001/image/upload/v1659960559/uvzf5zs0bloygljvq78i.jpg'},
+      ],
+      '🥣 ยากันยุง': [
+        { name: 'ซอฟเซฟ', price: 10, img: 'https://st.bigc-cs.com/cdn-cgi/image/format=webp,quality=90/public/media/catalog/product/26/89/8992772051026/8992772051026_1-20260616164015-.jpg' },
+        { name: 'ยากันยุงแบบขด', price: 30, img: 'https://img.kapook.com/u/patcharin/Health/ETC./mosquitocoil.jpg'},
+      ]
+    };
+
+    const order = [];
+
+    function renderMenu() {
+      const menuDiv = document.getElementById('menu');
+      for (const category in menu) {
+        const group = document.createElement('div');
+        group.className = 'menu-group';
+        group.innerHTML = `<h2>${category}</h2>`;
+
+        menu[category].forEach(item => {
+          const card = document.createElement('div');
+          card.className = 'item-card';
+
+          card.innerHTML = `
+            <img src="${item.img}" alt="${item.name}">
+            <div class="item-info">
+              <p>${item.name}</p>
+              <p><strong>${item.price + 0}฿</strong></p>
+              <button class="item-btn">สั่ง</button>
+            </div>
+          `;
+
+          card.querySelector('.item-btn').onclick = () => addToOrder(item.name, item.price + 30);
+          group.appendChild(card);
+        });
+
+        menuDiv.appendChild(group);
+      }
+    }
+
+    function addToOrder(name, price) {
+      const existing = order.find(i => i.name === name);
+      if (existing) {
+        existing.qty++;
+      } else {
+        order.push({ name, price, qty: 1 });
+      }
+      renderOrder();
+    }
+
+    function renderOrder() {
+      const list = document.getElementById('order-list');
+      list.innerHTML = '';
+      let total = 0;
+      order.forEach(item => {
+        const li = document.createElement('li');
+        li.textContent = `${item.name} x ${item.qty} = ${item.price * item.qty}฿`;
+        list.appendChild(li);
+        total += item.price * item.qty;
+      });
+      document.getElementById('total').textContent = total;
+      console.log("📦 คำสั่งซื้อ:", order);
+    }
+
+    async function submitOrder() {
+      const customerName = document.getElementById('customer-name').value;
+      const totalAmount = document.getElementById('total').textContent;
+      const submitBtn = document.getElementById('submit-btn');
+
+      if (order.length === 0) {
+        alert('กรุณาเลือกอาหารก่อนยืนยันครับ');
+        return;
+      }
+      if (!customerName) {
+        alert('กรุณาระบุบ้านหรือชื่อลูกค้าครับ');
+        return;
+      }
+
+      let itemsText = '';
+      order.forEach(item => {
+        itemsText += `- ${item.name} x${item.qty} (${item.price * item.qty}฿)\n`;
+      });
+
+      const payload = {
+        customer: customerName,
+        items: itemsText,
+        total: totalAmount
+      };
+
+      submitBtn.textContent = 'กำลังส่งออเดอร์...';
+      submitBtn.disabled = true;
+      submitBtn.style.background = '#6c757d';
+
+      try {
+        const webAppUrl = 'https://script.google.com/macros/s/AKfycbzw3NCWI2noJFrFI4i6gWpWadYpSR82zo-g2xJkhRvvaYqZxukHdJCN6osAJDBd0GXv5Q/exec';
+        
+        const response = await fetch(webAppUrl, {
+          method: 'POST',
+          body: JSON.stringify(payload),
+          mode: 'no-cors' // เพิ่ม no-cors เพื่อป้องกันปัญหาแจ้งเตือนข้ามโดเมน
+        });
+
+        alert('สั่งอาหารเรียบร้อยแล้ว! ร้านกำลังเตรียมอาหารให้ครับ');
+        
+        order.length = 0;
+        renderOrder();
+        document.getElementById('customer-name').value = '';
+
+      } catch (error) {
+        alert('เกิดข้อผิดพลาดในการส่งข้อมูล กรุณาลองใหม่อีกครั้ง');
+      } finally {
+        submitBtn.textContent = 'ยืนยันการสั่งอาหาร';
+        submitBtn.disabled = false;
+        submitBtn.style.background = '#28a745';
+      }
+    }
+
+    // ✅ เรียกใช้งาน
+    renderMenu();
+  </script>
+</body>
+</html>
